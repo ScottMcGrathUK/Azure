@@ -27,7 +27,7 @@ param (
 function ExcelSheetCheck {
     param (
         [Parameter(Mandatory = $true)]
-        [string]$SpreadsheetName
+        [string]$SpreadsheetName = 'groups.xlsx'
     )
 
     # Import the required module
@@ -104,25 +104,27 @@ Import-Module Az.Accounts
 Import-Module Az.Resources
 
 # Connect to Azure
-#Connect-AzAccount
+Connect-AzAccount
 
 $worksheetHierarchy = "Hierarchy"
 $parentGroups = Import-Excel -Path $SpreadsheetName -WorksheetName $worksheetHierarchy | Select-Object -ExpandProperty PGroup
 
-# # Create the parent groups
-# foreach ($group in $parentGroups) {
-#     New-AzADGroup -DisplayName $group -MailNickname $group -SecurityEnabled $true
-# }
+# Create the parent groups
+foreach ($group in $parentGroups) {
+    $group = 'Pgroup1'
+    $mailnickname = $group + "@rre.com"
+    New-AzADGroup -DisplayName $group -MailNickname $mailnickname -SecurityEnabled $true
+}
 
-# Start-Sleep -Seconds 120 # Wait for 2 minutes
+ Start-Sleep -Seconds 120 # Wait for 2 minutes
 
-# # Read the Hierarchy and GroupName columns from the Excel spreadsheet
-# $groups = Import-Excel -Path $SpreadsheetName -WorksheetName $worksheetHierarchy | Select-Object -ExpandProperty GroupName
+ # Read the Hierarchy and GroupName columns from the Excel spreadsheet
+ $groups = Import-Excel -Path $SpreadsheetName -WorksheetName $worksheetHierarchy | Select-Object -ExpandProperty GroupName
 
-# foreach ($group in $groups) {
-#     $parentGroup = Get-AzADGroup -DisplayName $group
-#     $groupName = Import-Excel -Path $SpreadsheetName -WorksheetName $worksheetHierarchy |
-#     Where-Object { $_.GroupName -eq $group } | Select-Object -ExpandProperty GroupName
+ foreach ($group in $groups) {
+    $parentGroup = Get-AzADGroup -DisplayName $group
+    $groupName = Import-Excel -Path $SpreadsheetName -WorksheetName $worksheetHierarchy |
+    Where-Object { $_.GroupName -eq $group } | Select-Object -ExpandProperty GroupName
     
-#     Add-AzADGroupMember -MemberObjectId $groupName.ObjectId -TargetGroupObjectId $parentGroup.ObjectId
-# }
+    Add-AzADGroupMember -MemberObjectId $groupName.ObjectId -TargetGroupObjectId $parentGroup.ObjectId
+}
