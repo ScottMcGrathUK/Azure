@@ -17,6 +17,7 @@
     from the spreadsheet and creates parent groups using the values in the "PGroup" column. Then, it 
     reads the "GroupName" column and adds each group as a member to its corresponding parent group.
 #>
+
 $worksheetMembers = "Members"
 $members = Import-Excel -Path $excelFile -WorksheetName $worksheetMembers
 
